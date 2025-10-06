@@ -39,6 +39,38 @@ def echo():
     return jsonify({'you_sent': data})
 
 
+@app.route('/api/messages', methods=['GET', 'POST'])
+def messages():
+    """Simple guestbook stored in Redis as a list 'messages'.
+    POST expects JSON: { "name": "Alice", "message": "Hello" }
+    GET returns the latest 20 messages by default.
+    """
+    if request.method == 'POST':
+        data = request.get_json(silent=True) or {}
+        name = data.get('name', 'anonymous')
+        message = data.get('message', '')
+        if not message:
+            return jsonify({'error': 'message is required'}), 400
+        import time
+        entry = {'name': name, 'message': message, 'ts': int(time.time())}
+        try:
+            # store as JSON string
+            import json
+            redis.lpush('messages', json.dumps(entry))
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+        return jsonify({'stored': entry}), 201
+
+    # GET
+    try:
+        import json
+        raw = redis.lrange('messages', 0, 19)
+        msgs = [json.loads(x) for x in raw]
+    except Exception as e:
+        return jsonify({'messages': [], 'error': str(e)}), 500
+    return jsonify({'messages': msgs})
+
+
 # Optional: serve static from Flask when needed (normally nginx handles static)
 @app.route('/static/<path:filename>')
 def static_files(filename):

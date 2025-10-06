@@ -55,6 +55,18 @@ All endpoints are accessible via the nginx proxy at `http://localhost`.
 
 - Static files: `http://localhost/static/index.html`
 
+### Guestbook - Messages (real-life example)
+
+Add and read simple guestbook messages stored in Redis.
+
+- GET `/api/messages` - returns recent messages (most recent first)
+
+  - Response: `{ "messages": [ { "name": "Darshak", "message": "Hi AI", "ts": 163... }, ... ] }`
+
+- POST `/api/messages` - add a new message
+  - Request JSON: `{ "name": "Raju", "message": "Hello ML" }`
+  - Success: HTTP 201 `{ "stored": { "name": "Raju", "message": "Hello ML", "ts": 163... } }`
+
 ## Useful Docker commands
 
 ```powershell
