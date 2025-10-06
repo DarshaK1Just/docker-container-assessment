@@ -11,8 +11,11 @@ services:
     environment:
       - FLASK_ENV=production
       - REDIS_URL=redis://redis:6379/0
+      - DOCKER_HOST=unix:///var/run/docker.sock
     depends_on:
       - redis
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - app-network
 

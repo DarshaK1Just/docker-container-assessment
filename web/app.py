@@ -2,6 +2,7 @@ import os
 from flask import Flask, jsonify, request, send_from_directory
 from redis import Redis
 from dotenv import load_dotenv
+import docker_client
 
 
 load_dotenv()
@@ -12,6 +13,9 @@ redis = Redis.from_url(REDIS_URL, decode_responses=True)
 
 
 app = Flask(__name__, static_folder='../nginx/static')
+
+# Simple token for minimal protection (set DOCKER_API_TOKEN in env in production)
+DOCKER_TOKEN = os.getenv('DOCKER_API_TOKEN', '')
 
 
 @app.route('/api/health')
@@ -81,3 +85,35 @@ def static_files(filename):
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
+
+
+@app.route('/api/docker/containers', methods=['GET'])
+def docker_list_containers():
+    # expect header X-Api-Token
+    token = request.headers.get('X-Api-Token', '')
+    if DOCKER_TOKEN and token != DOCKER_TOKEN:
+        return jsonify({'error': 'unauthorized'}), 401
+    all_flag = request.args.get('all', 'false').lower() == 'true'
+    try:
+        out = docker_client.list_containers(all=all_flag)
+        return jsonify({'containers': out})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/docker/containers/<container_id>/stop', methods=['POST'])
+def docker_stop(container_id):
+    token = request.headers.get('X-Api-Token', '')
+    if DOCKER_TOKEN and token != DOCKER_TOKEN:
+        return jsonify({'error': 'unauthorized'}), 401
+    ok = docker_client.stop_container(container_id)
+    return jsonify({'stopped': ok})
+
+
+@app.route('/api/docker/containers/<container_id>/start', methods=['POST'])
+def docker_start(container_id):
+    token = request.headers.get('X-Api-Token', '')
+    if DOCKER_TOKEN and token != DOCKER_TOKEN:
+        return jsonify({'error': 'unauthorized'}), 401
+    ok = docker_client.start_container(container_id)
+    return jsonify({'started': ok})
