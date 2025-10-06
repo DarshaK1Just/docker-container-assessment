@@ -1,0 +1,5 @@
+SQLAlchemy>=1.4
+alembic>=1.9
+pytz
+python-dateutil
+pytest
