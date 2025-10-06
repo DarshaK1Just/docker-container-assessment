@@ -1,0 +1,26 @@
+.env
+*.pyc
+__pycache__
+venv/
+.envrc
+.DS_Store
+
+# Docker
+*.log
+*.pid
+docker-compose.override.yml
+
+# VS Code
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# OneDrive
+*.lnk
+*.tmp
+
+# Logs
+logs/
+*.log

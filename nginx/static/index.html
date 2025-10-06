@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Docker Assessment - Static Site</title>
+<link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+<main>
+<h1>Docker Container Assessment</h1>
+<p>This static site is served by nginx. The Flask API is available at <code>/api/*</code>.</p>
+
+
+<button id="visitBtn">Hit /api/visits</button>
+<pre id="out"></pre>
+</main>
+
+
+<script>
+document.getElementById('visitBtn').addEventListener('click', async () => {
+const res = await fetch('/api/visits');
+const json = await res.json();
+document.getElementById('out').textContent = JSON.stringify(json, null, 2);
+});
+</script>
+</body>
+</html>
